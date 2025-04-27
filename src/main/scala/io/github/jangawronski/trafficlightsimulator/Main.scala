@@ -1,3 +1,5 @@
+package io.github.jangawronski.trafficlightsimulator
+
 @main def hello() =
   println("Hello world!")
   println(msg)

@@ -1,4 +1,4 @@
-package io.github.jangawronski.model
+package io.github.jangawronski.trafficlightsimulator.model
 
 enum Road:
     case North, East, South, West
