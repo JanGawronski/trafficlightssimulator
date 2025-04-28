@@ -17,6 +17,11 @@ case class ConflictingMovements(road: Road, phaseGroup1: PhaseGroup, phaseGroup2
   def msg = s"Road $road, phase group ${phaseGroup1.movements} conflicts with phase group ${phaseGroup2.movements}"
 }
 
+case class EmptyLane(road: Road) extends ConfigError {
+  def msg = s"Road $road has an empty lane"
+}
+
+
 object ConfigParser {
   def toDomain(dto: IntersectionConfigDto): Either[ConfigError, IntersectionConfig] = {
     val roadGroups: Either[ConfigError, Map[Road, Seq[PhaseGroup]]] =
@@ -28,7 +33,10 @@ object ConfigParser {
               MovementType.fromString(name)
                 .toRight(UnknownMovement(name))
             }
-            mvs.map(mvs => PhaseGroup(road, mvs.toSet))
+              mvs.flatMap { list =>
+                if (list.isEmpty) Left(EmptyLane(road))
+                else Right(PhaseGroup(road, list.toSet))
+            }
           }
         } yield road -> groups
       }.map(_.toMap)
