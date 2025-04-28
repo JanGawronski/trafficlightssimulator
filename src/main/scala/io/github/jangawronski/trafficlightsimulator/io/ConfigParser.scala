@@ -21,8 +21,20 @@ case class EmptyLane(road: Road) extends ConfigError {
   def msg = s"Road $road has an empty lane"
 }
 
+case class MissingOrExtraRoads(
+  missing: Set[Road],
+  extra: Set[Road]
+) extends ConfigError {
+  def msg: String = {
+    val miss = if (missing.nonEmpty) s"Missing roads: ${missing.mkString(", ")}" else ""
+    val ex   = if (extra.nonEmpty)   s"Extra roads: ${extra.mkString(", ")}" else ""
+    (miss + " " + ex).trim
+  }
+}
 
 object ConfigParser {
+  val requiredRoads: Set[Road] = Set(Road.North, Road.South, Road.East, Road.West)
+
   def toDomain(dto: IntersectionConfigDto): Either[ConfigError, IntersectionConfig] = {
     val roadGroups: Either[ConfigError, Map[Road, Seq[PhaseGroup]]] =
       dto.phaseGroups.toList.traverse { case (rawRoad, lanesLists) =>
@@ -43,16 +55,25 @@ object ConfigParser {
 
     val validated: Either[ConfigError, Map[Road, Seq[PhaseGroup]]] =
       roadGroups.flatMap { roadMap =>
-        roadMap.toList.traverse { case (road, groups) =>
-          groups.sliding(2).toList.traverse {
-            case Seq(leftLane, rightLane) =>
-              if (leftLane.movements.exists(l => rightLane.movements.exists(r => MovementType.conflicts(l, r))))
-                Left(ConflictingMovements(road, leftLane, rightLane))
-              else
-                Right(())
-            case _ => Right(())
-          }
-        }.map(_ => roadMap)
+        val presentRoads = roadMap.keySet
+
+        if (presentRoads != requiredRoads) {
+          val missing = requiredRoads -- presentRoads
+          val extra = presentRoads -- requiredRoads
+
+          Left(MissingOrExtraRoads(missing, extra))
+        } else {
+          roadMap.toList.traverse { case (road, groups) =>
+            groups.sliding(2).toList.traverse {
+              case Seq(leftLane, rightLane) =>
+                if (leftLane.movements.exists(l => rightLane.movements.exists(r => MovementType.conflicts(l, r))))
+                  Left(ConflictingMovements(road, leftLane, rightLane))
+                else
+                  Right(())
+              case _ => Right(())
+            }
+          }.map(_ => roadMap)
+        }
       }
 
     validated.map { roadMap =>
