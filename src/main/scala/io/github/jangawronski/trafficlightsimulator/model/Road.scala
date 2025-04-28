@@ -20,3 +20,11 @@ enum Road:
         case South => West
         case East  => South
         case West  => North
+    
+object Road:
+    def fromString(str: String): Option[Road] = str.toLowerCase.strip match
+        case "north" => Some(Road.North)
+        case "east"  => Some(Road.East)
+        case "south" => Some(Road.South)
+        case "west"  => Some(Road.West)
+        case _       => None
