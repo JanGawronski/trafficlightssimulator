@@ -6,7 +6,7 @@ import cats.implicits._
 
 
 sealed trait ParseError { def message: String }
-case class UnknownRoad(raw: String)      extends ParseError { def message = s"Unknown road '$raw'" }
+case class UnknownCommandRoad(raw: String) extends ParseError { def message = s"Unknown road '$raw'" }
 case class UnknownCommandType(raw: String) extends ParseError { def message = s"Unknown command type '$raw'" }
 
 sealed trait Command
@@ -24,9 +24,9 @@ object CommandsParser {
       case a: AddVehicleDto =>
         for {
           start <- Road.fromString(a.startRoad)
-                       .toRight(UnknownRoad(a.startRoad))
+                       .toRight(UnknownCommandRoad(a.startRoad))
           end   <- Road.fromString(a.endRoad)
-                       .toRight(UnknownRoad(a.endRoad))
+                       .toRight(UnknownCommandRoad(a.endRoad))
         } yield AddVehicleCmd(a.vehicleId, start, end)
       case StepDto(_)      => Right(StepCmd)
     }
