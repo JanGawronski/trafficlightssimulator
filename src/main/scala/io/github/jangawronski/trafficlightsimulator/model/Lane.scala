@@ -12,5 +12,5 @@ case class Lane(
   movements: Set[MovementType],
   queue: mutable.Queue[Vehicle] = mutable.Queue.empty
 ) {
-  def size: Int = queue.size
+  def numberOfVehicles: Int = queue.size
 }
