@@ -21,15 +21,10 @@ case class EmptyLane(road: Road) extends ConfigError {
   def msg = s"Road $road has an empty lane"
 }
 
-case class MissingOrExtraRoads(
+case class MissingRoads(
   missing: Set[Road],
-  extra: Set[Road]
 ) extends ConfigError {
-  def msg: String = {
-    val miss = if (missing.nonEmpty) s"Missing roads: ${missing.mkString(", ")}" else ""
-    val ex   = if (extra.nonEmpty)   s"Extra roads: ${extra.mkString(", ")}" else ""
-    (miss + " " + ex).trim
-  }
+  def msg = if (missing.nonEmpty) s"Missing roads: ${missing.mkString(", ")}" else ""
 }
 
 object ConfigParser {
@@ -59,9 +54,7 @@ object ConfigParser {
 
         if (presentRoads != requiredRoads) {
           val missing = requiredRoads -- presentRoads
-          val extra = presentRoads -- requiredRoads
-
-          Left(MissingOrExtraRoads(missing, extra))
+          Left(MissingRoads(missing))
         } else {
           roadMap.toList.traverse { case (road, groups) =>
             groups.sliding(2).toList.traverse {
