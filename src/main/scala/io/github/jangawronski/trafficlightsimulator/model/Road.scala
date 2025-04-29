@@ -46,10 +46,18 @@ object MovementType:
             case (Right, Left) => true
             case _ => false
 
+    def derive(start: Road, end: Road): MovementType =
+        values
+        .find(mv => start.navigate(mv) == end)
+        .getOrElse(
+            throw new IllegalArgumentException(
+            s"Cannot go from $start to $end with any MovementType"
+            )
+        )
 
     def fromString(str: String): Option[MovementType] = str.toLowerCase.strip match
         case "straight" => Some(MovementType.Straight)
-        case "left"     => Some(MovementType.Left)
-        case "right"    => Some(MovementType.Right)
+        case "left" => Some(MovementType.Left)
+        case "right" => Some(MovementType.Right)
         case "rightarrow" => Some(MovementType.RightArrow)
-        case _          => None
+        case _ => None
