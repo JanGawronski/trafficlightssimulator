@@ -21,13 +21,13 @@ case object StepCmd extends Command
 object CommandsParser {
   def toDomain(dto: CommandsDto): Either[ParseError, List[Command]] =
     dto.commands.toList.traverse {
-      case a: AddVehicleDto =>
+      case AddVehicleDto(vehicleId, startRoad, endRoad) =>
         for {
-          start <- Road.fromString(a.startRoad)
-                       .toRight(UnknownCommandRoad(a.startRoad))
-          end   <- Road.fromString(a.endRoad)
-                       .toRight(UnknownCommandRoad(a.endRoad))
-        } yield AddVehicleCmd(a.vehicleId, start, end)
-      case StepDto(_)      => Right(StepCmd)
+          start <- Road.fromString(startRoad)
+                       .toRight(UnknownCommandRoad(startRoad))
+          end   <- Road.fromString(endRoad)
+                       .toRight(UnknownCommandRoad(endRoad))
+        } yield AddVehicleCmd(vehicleId, start, end)
+      case StepDto() => Right(StepCmd)
     }
 }
