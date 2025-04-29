@@ -12,7 +12,7 @@ class ConfigParserSpec extends FunSuite {
   test("valid config with all 4 roads, one straight lane each") {
     val json =
       """
-      { "phaseGroups": {
+      { "lanes": {
           "north":[["straight"]],
           "south":[["straight"]],
           "east":[["straight"]],
@@ -21,18 +21,12 @@ class ConfigParserSpec extends FunSuite {
       }
       """
     val expected = IntersectionConfig(
-      roads = Map(
-        Road.North -> 1,
-        Road.South -> 1,
-        Road.East  -> 1,
-        Road.West  -> 1
-      ),
-      supportedPhaseGroups = Set(
-        PhaseGroup(Road.North, Set(MovementType.Straight)),
-        PhaseGroup(Road.South, Set(MovementType.Straight)),
-        PhaseGroup(Road.East,  Set(MovementType.Straight)),
-        PhaseGroup(Road.West,  Set(MovementType.Straight))
-      )
+        Map(
+          Road.North -> Seq(LaneConfig(0, Set(MovementType.Straight))),
+          Road.South -> Seq(LaneConfig(0, Set(MovementType.Straight))),
+          Road.East  -> Seq(LaneConfig(0, Set(MovementType.Straight))),
+          Road.West  -> Seq(LaneConfig(0, Set(MovementType.Straight)))
+        ),
     )
 
     assertEquals(parse(json), Right(expected))
@@ -41,7 +35,7 @@ class ConfigParserSpec extends FunSuite {
   test("missing one road should fail") {
     val json =
       """
-      { "phaseGroups": {
+      { "lanes": {
           "north":[["straight"]],
           "south":[["straight"]],
           "east":[["straight"]]
@@ -58,7 +52,7 @@ class ConfigParserSpec extends FunSuite {
   test("extra road should fail") {
     val json =
       """
-      { "phaseGroups": {
+      { "lanes": {
           "north":[["straight"]],
           "south":[["straight"]],
           "east":[["straight"]],
@@ -77,7 +71,7 @@ class ConfigParserSpec extends FunSuite {
   test("unknown movement name should fail") {
     val json =
       """
-      { "phaseGroups": {
+      { "lanes": {
           "north":[["fly"]],
           "south":[["straight"]],
           "east":[["straight"]],
@@ -95,7 +89,7 @@ class ConfigParserSpec extends FunSuite {
   test("empty lane list should fail") {
     val json =
       """
-      { "phaseGroups": {
+      { "lanes": {
           "north":[[]],
           "south":[["straight"]],
           "east":[["straight"]],
@@ -113,7 +107,7 @@ class ConfigParserSpec extends FunSuite {
   test("adjacent lane conflict (right vs left) should fail") {
     val json =
       """
-      { "phaseGroups": {
+      { "lanes": {
           "north":[["right"],["left"]],
           "south":[["straight"]],
           "east":[["straight"]],
