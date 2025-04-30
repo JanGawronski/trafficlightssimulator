@@ -24,7 +24,7 @@ enum Road:
     def navigate(movementType: MovementType): Road = movementType match
         case MovementType.Straight => straight
         case MovementType.Left     => left
-        case MovementType.Right | MovementType.RightArrow => right
+        case MovementType.Right => right
     
 object Road:
     def fromString(str: String): Option[Road] = str.toLowerCase.strip match
@@ -36,7 +36,7 @@ object Road:
 
 
 enum MovementType:
-    case Straight, Left, Right, RightArrow
+    case Straight, Left, Right
     
 object MovementType:
     def conflicts(leftLane: MovementType, RightLane: MovementType): Boolean = 
@@ -59,5 +59,4 @@ object MovementType:
         case "straight" => Some(MovementType.Straight)
         case "left" => Some(MovementType.Left)
         case "right" => Some(MovementType.Right)
-        case "rightarrow" => Some(MovementType.RightArrow)
         case _ => None

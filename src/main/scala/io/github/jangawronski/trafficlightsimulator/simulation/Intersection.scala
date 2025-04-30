@@ -16,7 +16,7 @@ class Intersection(config: IntersectionConfig) {
     require(candidateLanes.nonEmpty, s"No lane on ${v.startRoad} for ${v.movement}")
 
     val best = candidateLanes.minBy { lane =>
-      (lane.numberOfVehicles, lane.movements.size, !lane.movements.contains(MovementType.RightArrow))
+      (lane.numberOfVehicles, lane.movements.size)
     }
     best.queue.enqueue(v)
   }
