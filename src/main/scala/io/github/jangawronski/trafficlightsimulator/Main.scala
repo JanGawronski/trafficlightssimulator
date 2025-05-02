@@ -21,11 +21,11 @@ object Main extends IOApp {
 
   def run(args: List[String]): IO[ExitCode] = args match {
     case input :: output :: config :: Nil =>
-      simulateAll(Path.of(input), Path.of(output), Path.of(config))
+      handleIO(Path.of(input), Path.of(output), Path.of(config))
         .as(ExitCode.Success)
 
     case input :: output :: Nil =>
-      simulateAll(Path.of(input), Path.of(output), DefaultConfig)
+      handleIO(Path.of(input), Path.of(output), DefaultConfig)
         .as(ExitCode.Success)
 
     case _ =>
@@ -35,7 +35,7 @@ object Main extends IOApp {
       ) *> IO.pure(ExitCode(2))
   }
 
-  private def simulateAll(
+  private def handleIO(
     inPath:  Path,
     outPath: Path,
     cfgPath: Path
@@ -74,7 +74,7 @@ object Main extends IOApp {
     val results = ListBuffer.empty[StepStatus]
     var history: Seq[PhasePlan] = Nil
 
-    var currentPlan: PhasePlan = PhasePlan(Map.empty) // or pick an initial plan
+    var currentPlan: PhasePlan = PhasePlan(Map.empty)
     var stepsLeftInPhase: Int = 0
 
     commands.foreach {
