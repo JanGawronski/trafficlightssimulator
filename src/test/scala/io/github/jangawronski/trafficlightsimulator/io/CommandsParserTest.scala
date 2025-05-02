@@ -4,7 +4,7 @@ import munit.FunSuite
 import io.github.jangawronski.trafficlightsimulator.model._
 import upickle.default._
 
-class CommandsParserSpec extends FunSuite {
+class CommandsParserTest extends FunSuite {
 
   test("valid addVehicle and step commands") {
     val json =

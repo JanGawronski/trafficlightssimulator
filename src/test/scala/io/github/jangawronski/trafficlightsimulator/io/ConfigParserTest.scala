@@ -5,7 +5,7 @@ import upickle.default.read
 import io.github.jangawronski.trafficlightsimulator.model._
 import io.github.jangawronski.trafficlightsimulator.simulation.schedulers._
 
-class ConfigParserSpec extends FunSuite {
+class ConfigParserTest extends FunSuite {
 
   private def parse(json: String) =
     ConfigParser.toDomain(read[ConfigDto](json))
