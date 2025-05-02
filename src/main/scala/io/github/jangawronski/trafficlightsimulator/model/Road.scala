@@ -1,5 +1,8 @@
 package io.github.jangawronski.trafficlightsimulator.model
 
+/**
+  * Represents a road in the intersection.
+  */
 enum Road:
     case North, East, South, West
 
@@ -34,18 +37,28 @@ object Road:
         case "west"  => Some(Road.West)
         case _       => None
 
-
+/**
+  * Represents the type of movement allowed from one road to another.
+  */
 enum MovementType:
     case Straight, Left, Right
     
 object MovementType:
-    def conflicts(leftLane: MovementType, RightLane: MovementType): Boolean = 
-        (leftLane, RightLane) match
+    /**
+      * Checks if two movement types conflict with each other.
+      * It's used to determine if two lanes exist in the same road in next to each other.
+      */
+    def conflicts(leftLane: MovementType, rightLane: MovementType): Boolean = 
+        (leftLane, rightLane) match
             case (Straight, Left) => true
             case (Right, Straight) => true
             case (Right, Left) => true
             case _ => false
 
+    /**
+      * Derives the movement type from the start and end road.
+      * Throws an exception if no valid movement type is found.
+      */
     def derive(start: Road, end: Road): MovementType =
         values
         .find(mv => start.navigate(mv) == end)
