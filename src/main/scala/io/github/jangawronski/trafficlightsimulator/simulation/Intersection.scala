@@ -19,7 +19,33 @@ class Intersection(config: IntersectionConfig) {
     queues(best).enqueue(v)
   }
 
-  def queueLengths: Map[Road, Seq[Int]] =
-    roads.view.mapValues(_.map(_.numberOfVehicles)).toMap
+  /**
+    * Applies the given plan to the intersection, removing vehicles from the queues.
+    * @param plan The plan to apply.
+    * @return A StepStatus containing the vehicles that left the intersection.
+    */
+  def applyPlan(plan: PhasePlan): StepStatus = {
+    val goesStaight = plan.greens.map { case (road, lanes) =>
+      road -> lanes.exists(lane => queues(lane).nonEmpty && queues(lane).head.movement == MovementType.Straight)
+    }
+    val leftVehicles = plan.greens.flatMap { case (road, lanes) =>
+      lanes.flatMap { lane =>
+        val queue = queues(lane)
+        if (queue.isEmpty || (goesStaight(road.straight) && queue.head.movement == MovementType.Left)) {
+          Seq.empty
+        }
+        else {
+          Seq(queue.dequeue.id)
+        }
+      }
+    }.toSeq
+
+    StepStatus(leftVehicles)
+  }
+
+
+  def laneVehicles: Map[Lane, Seq[Vehicle]] = {
+    queues.map { case (lane, queue) => lane -> queue.toSeq }
+  }
 
 }
