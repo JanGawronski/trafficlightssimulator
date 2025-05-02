@@ -8,6 +8,7 @@ import cats.instances.either._
 import io.github.jangawronski.trafficlightsimulator.model._
 import io.github.jangawronski.trafficlightsimulator.simulation.Scheduler
 import io.github.jangawronski.trafficlightsimulator.simulation.schedulers.VehicleCountScheduler
+import io.github.jangawronski.trafficlightsimulator.simulation.schedulers.LongestWaitingScheduler
 
 sealed trait ConfigError { def msg: String }
 case class UnknownConfigRoad(name: String) extends ConfigError {
@@ -49,7 +50,7 @@ object ConfigParser {
 
     val scheduler = dto.scheduler match {
       case "vehicleCount" => Right(new VehicleCountScheduler())
-      case "longestWaiting" => Right(new VehicleCountScheduler())
+      case "longestWaiting" => Right(new LongestWaitingScheduler())
       case _ => Left(UnknownConfigScheduler(dto.scheduler))
     }
 
