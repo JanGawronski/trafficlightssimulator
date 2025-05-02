@@ -13,7 +13,7 @@ case class UnknownConfigRoad(name: String) extends ConfigError {
 case class UnknownMovement(name: String) extends ConfigError {
   def msg = s"Unknown movement '$name'"
 }
-case class ConflictingMovements(road: Road, lane1: LaneConfig, lane2: LaneConfig) extends ConfigError {
+case class ConflictingMovements(road: Road, lane1: Lane, lane2: Lane) extends ConfigError {
   def msg = s"Road $road, phase group ${lane1.movements} conflicts with phase group ${lane2.movements}"
 }
 
@@ -31,7 +31,7 @@ object ConfigParser {
   val requiredRoads: Set[Road] = Set(Road.North, Road.South, Road.East, Road.West)
 
   def toDomain(dto: IntersectionConfigDto): Either[ConfigError, IntersectionConfig] = {
-    val roadGroups: Either[ConfigError, Map[Road, Seq[LaneConfig]]] =
+    val roadGroups: Either[ConfigError, Map[Road, Seq[Lane]]] =
       dto.lanes.toList.traverse { case (rawRoad, lanesLists) =>
         for {
           road <- Road.fromString(rawRoad).toRight(UnknownConfigRoad(rawRoad))
@@ -42,13 +42,13 @@ object ConfigParser {
             }
               mvs.flatMap { list =>
                 if (list.isEmpty) Left(EmptyLane(road))
-                else Right(LaneConfig(index, list.toSet))
+                else Right(Lane(index, list.toSet))
             }
           }
         } yield road -> lanes
       }.map(_.toMap)
 
-    val validated: Either[ConfigError, Map[Road, Seq[LaneConfig]]] =
+    val validated: Either[ConfigError, Map[Road, Seq[Lane]]] =
       roadGroups.flatMap { roadMap =>
         val presentRoads = roadMap.keySet
 

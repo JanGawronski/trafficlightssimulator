@@ -22,10 +22,10 @@ class ConfigParserSpec extends FunSuite {
       """
     val expected = IntersectionConfig(
         Map(
-          Road.North -> Seq(LaneConfig(0, Set(MovementType.Straight))),
-          Road.South -> Seq(LaneConfig(0, Set(MovementType.Straight))),
-          Road.East  -> Seq(LaneConfig(0, Set(MovementType.Straight))),
-          Road.West  -> Seq(LaneConfig(0, Set(MovementType.Straight)))
+          Road.North -> Seq(Lane(0, Set(MovementType.Straight))),
+          Road.South -> Seq(Lane(0, Set(MovementType.Straight))),
+          Road.East  -> Seq(Lane(0, Set(MovementType.Straight))),
+          Road.West  -> Seq(Lane(0, Set(MovementType.Straight)))
         ),
     )
 
