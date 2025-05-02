@@ -34,6 +34,6 @@ class CommandsParserSpec extends FunSuite {
     assert(result.isLeft)
     val err = result.left.get
     assert(err.isInstanceOf[UnknownCommandRoad])
-    assert(err.message.contains("up"))
+    assert(err.msg.contains("up"))
   }
 }

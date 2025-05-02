@@ -5,9 +5,9 @@ import io.github.jangawronski.trafficlightsimulator.model._
 import cats.implicits._
 
 
-sealed trait ParseError { def message: String }
-case class UnknownCommandRoad(raw: String) extends ParseError { def message = s"Unknown road '$raw'" }
-case class UnknownCommandType(raw: String) extends ParseError { def message = s"Unknown command type '$raw'" }
+sealed trait ParseError { def msg: String }
+case class UnknownCommandRoad(raw: String) extends ParseError { def msg = s"Unknown road '$raw'" }
+case class UnknownCommandType(raw: String) extends ParseError { def msg = s"Unknown command type '$raw'" }
 
 sealed trait Command
 case class AddVehicleCmd(
