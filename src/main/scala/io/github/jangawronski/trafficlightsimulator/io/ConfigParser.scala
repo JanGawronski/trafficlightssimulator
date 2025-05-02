@@ -1,10 +1,13 @@
 package io.github.jangawronski.trafficlightsimulator.io
 
-import io.github.jangawronski.trafficlightsimulator.model._
 import cats.syntax.either._
 import cats.syntax.traverse._
 import cats.instances.list._
 import cats.instances.either._
+
+import io.github.jangawronski.trafficlightsimulator.model._
+import io.github.jangawronski.trafficlightsimulator.simulation.Scheduler
+import io.github.jangawronski.trafficlightsimulator.simulation.schedulers.VehicleCountScheduler
 
 sealed trait ConfigError { def msg: String }
 case class UnknownConfigRoad(name: String) extends ConfigError {
@@ -14,7 +17,7 @@ case class UnknownMovement(name: String) extends ConfigError {
   def msg = s"Unknown movement '$name'"
 }
 case class ConflictingMovements(road: Road, lane1: Lane, lane2: Lane) extends ConfigError {
-  def msg = s"Road $road, phase group ${lane1.movements} conflicts with phase group ${lane2.movements}"
+  def msg = s"Road ${road}, movements ${lane1.movements} conflict with movements ${lane2.movements}"
 }
 
 case class EmptyLane(road: Road) extends ConfigError {
@@ -27,10 +30,29 @@ case class MissingRoads(
   def msg = if (missing.nonEmpty) s"Missing roads: ${missing.mkString(", ")}" else ""
 }
 
+case class UnknownConfigScheduler(name: String) extends ConfigError {
+  def msg = s"Unknown scheduler '$name'"
+}
+
+case class NonPositiveLightDuration(value: Int) extends ConfigError {
+  def msg = s"Light duration must be positive, but got $value"
+}
+
+
 object ConfigParser {
   val requiredRoads: Set[Road] = Set(Road.North, Road.South, Road.East, Road.West)
 
-  def toDomain(dto: IntersectionConfigDto): Either[ConfigError, IntersectionConfig] = {
+  def toDomain(dto: ConfigDto): Either[ConfigError, (IntersectionConfig, Scheduler, Int)] = {
+    if (dto.lightDuration <= 0) {
+      return Left(NonPositiveLightDuration(dto.lightDuration))
+    }
+
+    val scheduler = dto.scheduler match {
+      case "vehicleCount" => Right(new VehicleCountScheduler())
+      case "longestWaiting" => Right(new VehicleCountScheduler())
+      case _ => Left(UnknownConfigScheduler(dto.scheduler))
+    }
+
     val roadGroups: Either[ConfigError, Map[Road, Seq[Lane]]] =
       dto.lanes.toList.traverse { case (rawRoad, lanesLists) =>
         for {
@@ -42,7 +64,7 @@ object ConfigParser {
             }
               mvs.flatMap { list =>
                 if (list.isEmpty) Left(EmptyLane(road))
-                else Right(Lane(index, list.toSet))
+                else Right(Lane(index, road, list.toSet))
             }
           }
         } yield road -> lanes
@@ -68,9 +90,11 @@ object ConfigParser {
           }.map(_ => roadMap)
         }
       }
-
-    validated.map { roadMap =>
-        IntersectionConfig(roadMap)
+    
+    validated.flatMap { roadMap =>
+      scheduler.map { s =>
+        (IntersectionConfig(roadMap), s, dto.lightDuration)
+      }
     }
   }
 }

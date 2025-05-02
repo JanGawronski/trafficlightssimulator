@@ -2,10 +2,11 @@ package io.github.jangawronski.trafficlightsimulator.io
 
 import upickle.default.{ReadWriter, macroRW}
 
-case class IntersectionConfigDto(
-  lanes: Map[String, Seq[Seq[String]]]
+case class ConfigDto(
+  lanes: Map[String, Seq[Seq[String]]],
+  scheduler: String,
+  lightDuration: Int,
 )
-
-object IntersectionConfigDto {
-  implicit val rw: ReadWriter[IntersectionConfigDto] = macroRW
+object ConfigDto {
+  implicit val rw: ReadWriter[ConfigDto] = macroRW
 }

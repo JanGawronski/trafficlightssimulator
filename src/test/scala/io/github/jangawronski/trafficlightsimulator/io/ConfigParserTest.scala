@@ -3,11 +3,12 @@ package io.github.jangawronski.trafficlightsimulator.io
 import munit.FunSuite
 import upickle.default.read
 import io.github.jangawronski.trafficlightsimulator.model._
+import io.github.jangawronski.trafficlightsimulator.simulation.schedulers._
 
 class ConfigParserSpec extends FunSuite {
 
   private def parse(json: String) =
-    ConfigParser.toDomain(read[IntersectionConfigDto](json))
+    ConfigParser.toDomain(read[ConfigDto](json))
 
   test("valid config with all 4 roads, one straight lane each") {
     val json =
@@ -17,19 +18,24 @@ class ConfigParserSpec extends FunSuite {
           "south":[["straight"]],
           "east":[["straight"]],
           "west":[["straight"]]
-        }
+        },
+        "scheduler": "vehicleCount",
+        "lightDuration": 3
       }
       """
-    val expected = IntersectionConfig(
+    val expectedIntersection = IntersectionConfig(
         Map(
-          Road.North -> Seq(Lane(0, Set(MovementType.Straight))),
-          Road.South -> Seq(Lane(0, Set(MovementType.Straight))),
-          Road.East  -> Seq(Lane(0, Set(MovementType.Straight))),
-          Road.West  -> Seq(Lane(0, Set(MovementType.Straight)))
+          Road.North -> Seq(Lane(0, Road.North, Set(MovementType.Straight))),
+          Road.South -> Seq(Lane(0, Road.South, Set(MovementType.Straight))),
+          Road.East  -> Seq(Lane(0, Road.East, Set(MovementType.Straight))),
+          Road.West  -> Seq(Lane(0, Road.West, Set(MovementType.Straight)))
         ),
     )
 
-    assertEquals(parse(json), Right(expected))
+    val (config, scheduler, lightDuration) = parse(json).getOrElse(throw new Exception("Should not fail"))
+    assertEquals(config, expectedIntersection)
+    assert(scheduler.isInstanceOf[VehicleCountScheduler])
+    assertEquals(lightDuration, 3)
   }
 
   test("missing one road should fail") {
@@ -39,7 +45,9 @@ class ConfigParserSpec extends FunSuite {
           "north":[["straight"]],
           "south":[["straight"]],
           "east":[["straight"]]
-        }
+        },
+        "scheduler": "vehicleCount",
+        "lightDuration": 3
       }
       """
     val result = parse(json)
@@ -58,7 +66,9 @@ class ConfigParserSpec extends FunSuite {
           "east":[["straight"]],
           "west":[["straight"]],
           "northeast":[["straight"]]
-        }
+        },
+        "scheduler": "vehicleCount",
+        "lightDuration": 3
       }
       """
     val result = parse(json)
@@ -76,7 +86,9 @@ class ConfigParserSpec extends FunSuite {
           "south":[["straight"]],
           "east":[["straight"]],
           "west":[["straight"]]
-        }
+        },
+        "scheduler": "vehicleCount",
+        "lightDuration": 3
       }
       """
     val result = parse(json)
@@ -94,7 +106,9 @@ class ConfigParserSpec extends FunSuite {
           "south":[["straight"]],
           "east":[["straight"]],
           "west":[["straight"]]
-        }
+        },
+        "scheduler": "vehicleCount",
+        "lightDuration": 3
       }
       """
     val result = parse(json)
@@ -112,7 +126,9 @@ class ConfigParserSpec extends FunSuite {
           "south":[["straight"]],
           "east":[["straight"]],
           "west":[["straight"]]
-        }
+        },
+        "scheduler": "vehicleCount",
+        "lightDuration": 3
       }
       """
     val result = parse(json)
@@ -122,5 +138,44 @@ class ConfigParserSpec extends FunSuite {
     assert(err.msg.contains("North"))
     assert(err.msg.contains("Right"))
     assert(err.msg.contains("Left"))
+  }
+
+  test("correct config with non-existing scheduler") {
+    val json =
+      """
+      { "lanes": {
+          "north":[["straight"]],
+          "south":[["straight"]],
+          "east":[["straight"]],
+          "west":[["straight"]]
+        },
+        "scheduler": "non-existing",
+        "lightDuration": 3
+      }
+      """
+    val result = parse(json)
+    assert(result.isLeft)
+    val err = result.left.get
+    assert(err.isInstanceOf[UnknownConfigScheduler])
+    assert(err.msg.contains("non-existing"))
+  }
+  test("correct config with non-positive light duration") {
+    val json =
+      """
+      { "lanes": {
+          "north":[["straight"]],
+          "south":[["straight"]],
+          "east":[["straight"]],
+          "west":[["straight"]]
+        },
+        "scheduler": "vehicleCount",
+        "lightDuration": -1
+      }
+      """
+    val result = parse(json)
+    assert(result.isLeft)
+    val err = result.left.get
+    assert(err.isInstanceOf[NonPositiveLightDuration])
+    assert(err.msg.contains("-1"))
   }
 }
