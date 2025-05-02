@@ -19,7 +19,7 @@ case class AddVehicleCmd(
 case object StepCmd extends Command
 
 object CommandsParser {
-  def toDomain(dto: CommandsDto): Either[ParseError, List[Command]] =
+  def toDomain(dto: CommandsDto): Either[ParseError, Seq[Command]] =
     dto.commands.toList.traverse {
       case AddVehicleDto(vehicleId, startRoad, endRoad) =>
         for {
