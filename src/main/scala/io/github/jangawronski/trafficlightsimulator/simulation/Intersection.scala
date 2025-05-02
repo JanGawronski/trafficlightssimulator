@@ -3,7 +3,7 @@ package io.github.jangawronski.trafficlightsimulator.simulation
 import io.github.jangawronski.trafficlightsimulator.model._
 import scala.collection.mutable.Queue
 
-class Intersection(config: IntersectionConfig) {
+class Intersection(val config: IntersectionConfig) {
   private val roads: Map[Road, Seq[Lane]] = config.lanes
   private val queues: Map[Lane, Queue[Vehicle]] = 
     roads.values.flatten.map { lane => lane -> Queue.empty }.toMap

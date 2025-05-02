@@ -24,19 +24,19 @@ case class StepStatus(leftVehicles: Seq[String])
 
 /**
   * Scheduler is responsible for deciding which lanes should be green at any given time.
-  * It takes into account the history of PhasePlans, the current state of the intersection,
+  * It takes into account the history of PhasePlans, the configuration of the intersection,
   * and the vehicles in the intersection.
   */
 trait Scheduler:
 
   /**  
-   * @param history        all prior PhasePlans (for fairness, aging, etc.)  
-   * @param intersection   the current state of the intersection
-   * @param vehicles       the current state of the vehicles in the intersection
-   * @return               the next set of PhaseGroups to turn green  
+   * @param history              all prior PhasePlans (for fairness, aging, etc.)  
+   * @param intersectionConfig   the configuration of the intersection, including lanes and roads
+   * @param vehicles             the current state of the vehicles in the intersection
+   * @return                     the next set of PhaseGroups to turn green  
    */
   def nextPlan(
-    history:      Seq[PhasePlan],
-    intersection: Map[Road, Set[Lane]],
-    vehicles:     Map[Lane, Seq[Vehicle]]
+    history:            Seq[PhasePlan],
+    intersectionConfig: IntersectionConfig,
+    vehicles:           Map[Lane, Seq[Vehicle]]
   ): PhasePlan
