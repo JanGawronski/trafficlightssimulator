@@ -17,7 +17,7 @@ import io._
 
 object Main extends IOApp {
 
-  private val DefaultConfig = Path.of("configs/simple.json")
+  private val DefaultConfig = Path.of("configs", "simple.json")
 
   def run(args: List[String]): IO[ExitCode] = args match {
     case input :: output :: config :: Nil =>
