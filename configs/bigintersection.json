@@ -1,0 +1,9 @@
+{ "lanes": {
+    "north":[["left"], ["straight"], ["right"]],
+    "south":[["left"], ["straight"], ["right"]],
+    "east":[["left"], ["straight"], ["right"]],
+    "west":[["left"], ["straight"], ["right"]]
+  },
+  "scheduler": "vehicleCount",
+  "lightDuration": 3
+}
