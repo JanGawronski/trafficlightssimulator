@@ -118,4 +118,4 @@ Problem of finding maximal weight independent set is generally NP-hard, but poly
 Conflicts between lanes are defined as two lanes that cannot be green at the same time. For example, if one lane is going straight and perpendicular lane is going straight or left, they are in conflict. Or if one lane is going left-only and opposite lane is going straight, they are in conflict. In situation where lane is going left and straight, and opposite lane is going straight are not in conflict, as it would terrible for small intersections. Instead if vehicle wants to go left and on opposite side is going straight, it will wait for the vehicle to pass (won't go in this step).
 Situation where lane is going left and righthand-side lane is going straight brings no conflict, as they are not crossing each other. 
 
-In case of many lanes vehicles go to lanes with smallest number of vehicles. If there are two or more lanes with the same number of vehicles, more specialized one is chosen.
+In case of many lanes vehicles go to the lane with smallest number of vehicles. If there are two or more lanes with the same number of vehicles, more specialized one is chosen.
