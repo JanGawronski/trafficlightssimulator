@@ -50,4 +50,14 @@ class IntersectionConfigTest extends FunSuite {
     assert(config.laneConflicts(eastStraight, southStraight))
     assert(config.laneConflicts(southStraight, eastStraight))
   }
+
+  test("lanes must belong to their respective roads") {
+    val invalidLane = lane(0, Road.South, MovementType.Straight)
+    
+    val exception = intercept[IllegalArgumentException] {
+      IntersectionConfig(lanes = Map(Road.North -> List(invalidLane)))
+    }
+
+    assert(exception.getMessage.contains("All lanes must belong to their respective roads."))
+  }
 }

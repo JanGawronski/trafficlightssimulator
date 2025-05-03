@@ -1,8 +1,11 @@
 package io.github.jangawronski.trafficlightsimulator.model
 
 case class IntersectionConfig(
-  lanes: Map[Road, Seq[Lane]],
+  lanes: Map[Road, Seq[Lane]]
 ) {
+  require(lanes.forall { case (road, roadLanes) => roadLanes.forall(lane => lane.road == road) }, 
+  "All lanes must belong to their respective roads.")
+
   /**
     * Checks if two lanes from opposite roads conflict with each other.
     * The only conflict is if one lane is going straight and the other is only able to turn left.
