@@ -40,7 +40,9 @@ class Intersection(val config: IntersectionConfig) {
     val leftVehicles = plan.greens.flatMap { case (road, lanes) =>
       lanes.flatMap { lane =>
         val queue = queues(lane)
-        if (queue.isEmpty || (goesStaight(road.straight) && queue.head.movement == MovementType.Left)) {
+        if (queue.isEmpty || (
+          goesStaight.getOrElse(road.straight, false)
+          && queue.head.movement == MovementType.Left)) {
           Seq.empty
         }
         else {
